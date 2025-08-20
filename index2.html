@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI授業案ジェネレーター</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .container {
+            max-width: 900px;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 32px;
+            height: 32px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+        }
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .material-button.selected {
+            background-color: #3b82f6;
+            color: #ffffff;
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+
+    <div class="container mx-auto p-4 md:p-8 bg-white rounded-xl shadow-lg">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">AI授業案ジェネレーター</h1>
+            <p class="text-slate-600">
+                年間指導計画を基に、プログラミングを活用した授業案を自動生成します。
+            </p>
+        </header>
+
+        <section class="mb-8">
+            <label for="curriculum-input" class="block text-lg font-semibold text-slate-700 mb-2">
+                1. 年間指導計画のテキストを貼り付け
+            </label>
+            <textarea id="curriculum-input" rows="10" class="w-full p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" placeholder="例：中学2年 国語。単元名「文学の世界を旅する」。目標：物語の主題や登場人物の心情を深く読み取る。使用教材：教科書掲載作品..."></textarea>
+            <p class="text-sm text-gray-500 mt-1">※ 全教科・全学年の計画を一度に貼り付けると、処理に時間がかかります。まずは単元ごとに貼り付けてください。<br>※ PDFをご利用の場合は、PDF内のテキストをコピーして、ここに貼り付けてください。</p>
+        </section>
+
+        <section class="mb-8">
+            <label for="generate-options" class="block text-lg font-semibold text-slate-700 mb-2">
+                2. 授業案の条件を入力
+            </label>
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="micro:bit">micro:bit</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="MakeCode">MakeCode</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="Scratch">Scratch</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="Viscuit">Viscuit</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="Tello Edu">Tello Edu (ドローン)</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="プログル">プログル</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="アルゴロジック">アルゴロジック</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="Edutown">Edutown</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="ねそプロ">ねそプロ</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="Hour of Code">Hour of Code</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="プログラミングロボット">プログラミングロボット</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="ビュートレーサー">ビュートレーサー</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="ビットロボット">ビットロボット</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="ホエールくん">ホエールくん</button>
+                <button type="button" class="material-button px-4 py-2 rounded-full border border-gray-400 text-sm font-medium text-gray-700 hover:bg-gray-200 transition duration-300" data-name="コード・A・ピラー">コード・A・ピラー</button>
+            </div>
+            <input type="text" id="lesson-details-input" class="w-full p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" placeholder="例：3時間分の授業案">
+            <p class="text-sm text-gray-500 mt-1">
+                ※ 任意：具体的な授業時間やテーマなどを入力してください。
+            </p>
+        </section>
+
+        <div class="flex justify-center mb-8">
+            <button id="generate-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 transform hover:scale-105 disabled:bg-blue-400">
+                <span id="button-text">授業案を生成する</span>
+                <div id="loading-spinner" class="loading-spinner hidden"></div>
+            </button>
+        </div>
+
+        <section id="result-section" class="hidden">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4 text-center">生成された授業案</h2>
+            <div id="lesson-plan-output" class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200 shadow-inner leading-relaxed prose max-w-none">
+                <!-- Generated lesson plan will be inserted here -->
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const curriculumInput = document.getElementById('curriculum-input');
+            const lessonDetailsInput = document.getElementById('lesson-details-input');
+            const generateButton = document.getElementById('generate-button');
+            const buttonText = document.getElementById('button-text');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const resultSection = document.getElementById('result-section');
+            const lessonPlanOutput = document.getElementById('lesson-plan-output');
+            const materialButtons = document.querySelectorAll('.material-button');
+            const selectedMaterials = new Set();
+
+            materialButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const materialName = button.getAttribute('data-name');
+                    if (selectedMaterials.has(materialName)) {
+                        selectedMaterials.delete(materialName);
+                        button.classList.remove('selected');
+                        button.classList.add('border-gray-400', 'text-gray-700');
+                        button.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                    } else {
+                        selectedMaterials.add(materialName);
+                        button.classList.add('selected');
+                        button.classList.remove('border-gray-400', 'text-gray-700');
+                        button.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                    }
+                });
+            });
+
+            generateButton.addEventListener('click', async () => {
+                const curriculumText = curriculumInput.value.trim();
+                const lessonDetailsText = lessonDetailsInput.value.trim();
+
+                if (!curriculumText) {
+                    alert('年間指導計画のテキストを貼り付けてください。');
+                    return;
+                }
+
+                // UIの更新
+                generateButton.disabled = true;
+                buttonText.classList.add('hidden');
+                loadingSpinner.classList.remove('hidden');
+                resultSection.classList.add('hidden');
+                lessonPlanOutput.innerHTML = '';
+
+                // 選択された教材の文字列を生成
+                const materialsString = selectedMaterials.size > 0 ? Array.from(selectedMaterials).join(', ') : 'プログラミング教材';
+
+                // プロンプトの構築
+                let prompt = `あなたはプログラミング教育に精通したベテラン教員です。以下の年間指導計画を参照し、プログラミング教材を効果的に活用した授業案を、Markdown形式で日本語で作成してください。
+                
+                生成する授業案には、以下の項目を必ず含めてください。
+                - 授業案のタイトル
+                - 目的
+                - 対象
+                - 教科・単元
+                - 準備物
+                - 参考情報・リンク
+                - コードの概念
+                - 授業の流れ（時間配分を含む）
+                - 評価方法（知識・技能、思考・判断・表現、態度・意欲の観点から）
+                - 板書計画（タイトル、めあて、キーワード、活動の流れ）
+                
+                ---
+                
+                # 年間指導計画
+                ${curriculumText}
+                
+                # 授業案の追加条件
+                ${lessonDetailsText}、使用教材: ${materialsString}
+                
+                ---
+                
+                生成する授業案は、年間指導計画の意図や内容を深く理解し、それに沿ったものである必要があります。`;
+
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                try {
+                    let response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        // MarkdownをHTMLに変換して表示
+                        lessonPlanOutput.innerHTML = marked.parse(text);
+                        resultSection.classList.remove('hidden');
+                    } else {
+                        throw new Error('生成された内容がありませんでした。');
+                    }
+                } catch (error) {
+                    console.error('エラーが発生しました:', error);
+                    lessonPlanOutput.innerHTML = `<p class="text-red-500">授業案の生成中にエラーが発生しました。もう一度お試しください。</p>`;
+                    resultSection.classList.remove('hidden');
+                } finally {
+                    // UIを元に戻す
+                    generateButton.disabled = false;
+                    buttonText.classList.remove('hidden');
+                    loadingSpinner.classList.add('hidden');
+                }
+            });
+        });
+
+        // marked.js を使用して Markdown を HTML に変換
+        // https://cdn.jsdelivr.net/npm/marked/
+        // NOTE: marked.js の代わりに、より軽量なライブラリや自作の変換関数も使用可能です。
+        const marked = (function() {
+            var marked = function(str) {
+                // A simple markdown to HTML converter for this specific use case
+                var html = str;
+                html = html.replace(/^#\s(.+)/gm, '<h2>$1</h2>');
+                html = html.replace(/^##\s(.+)/gm, '<h3>$1</h3>');
+                html = html.replace(/^###\s(.+)/gm, '<h4>$1</h4>');
+                html = html.replace(/^- (.+)/gm, '<li>$1</li>');
+                html = html.replace(/^\d+\.\s(.+)/gm, '<li>$1</li>');
+                html = html.replace(/^- (.+)/gm, '<ul>$1</ul>');
+                html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                html = html.replace(/\n\n/g, '<br><br>');
+                html = html.replace(/\n/g, '<br>');
+                // Simple link replacement
+                html = html.replace(/<a href="(.+?)">(.+?)<\/a>/g, '<a href="$1" class="text-blue-600 hover:underline" target="_blank">$2</a>');
+                return html;
+            };
+            return {
+                parse: marked
+            };
+        })();
+    </script>
+</body>
+</html>
